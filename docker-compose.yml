@@ -1,0 +1,114 @@
+version: '3.8'
+
+services:
+
+  # Web Server Service
+  nginx_proto_4:
+    image: nginx
+    container_name: nginx_proto_4
+    ports:
+      - "8008:8008"
+      - "8009:8009"
+      - "8010:8010"
+      - "8011:8011"
+    volumes:
+      - ./src:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - ./nginx/sites-available/:/etc/nginx/sites-available/
+    depends_on:
+      - app_proto_4
+      - mysql_proto_4U
+      - mysql_proto_4A
+      - mysql_proto_4B
+      - mysql_proto_4C
+    networks:
+      - net_proto_4
+
+  #Database Service
+  mysql_proto_4U:
+    image : mysql
+    container_name : mysql_proto_4U
+    volumes:
+      - ./mysql/data_4U:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: dikosongkan
+    networks:
+      - net_proto_4
+
+  mysql_proto_4A:
+    image : mysql
+    container_name : mysql_proto_4A
+    volumes:
+      - ./mysql/data_4A:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: dikosongkan
+    networks:
+      - net_proto_4
+
+  mysql_proto_4B:
+    image : mysql
+    container_name : mysql_proto_4B
+    volumes:
+      - ./mysql/data_4B:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: dikosongkan
+    networks:
+      - net_proto_4
+  
+  mysql_proto_4C:
+    image : mysql
+    container_name : mysql_proto_4C
+    volumes:
+      - ./mysql/data_4C:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: dikosongkan
+    networks:
+      - net_proto_4
+
+  app_proto_4:
+    container_name: app_proto_4
+    build: 
+      context: ./php
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/var/www
+    working_dir: /var/www
+    networks:
+      - net_proto_4
+
+  # Adminer Service
+  adminer_proto_4:
+    image: adminer
+    container_name: adminer_proto_4
+    ports:
+      - "8084:8080"
+    depends_on:
+      - mysql_proto_4U
+      - mysql_proto_4A
+      - mysql_proto_4B
+      - mysql_proto_4C
+    networks:
+      - net_proto_4
+
+  # micro integrator  
+  wso2mi_proto_4:
+    image: wso2/wso2mi:4.0.0-ubuntu
+    container_name: wso2mi_proto_4
+    # ports:
+    #   - "8290:8290"
+    #   - "8253:8253"
+    #   - "5005:5005"
+    volumes:
+      - ./wso2mi/carbonapps:/home/wso2carbon/wso2mi-4.0.0/repository/deployment/server/carbonapps
+    networks:
+      - net_proto_4
+  
+# Network Service
+networks:
+  net_proto_4:
+    driver: "bridge"
+#   host:
+#     ipam:
+#       driver: default
+#       config:
+#         - subnet: 172.30.0.0/16
